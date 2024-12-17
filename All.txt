@@ -1,0 +1,1470 @@
+#####PRAC-1
+
+
+LIST PARTITIONING
+
+
+CREATE TABLE sales_list(
+    salesman_id   NUMBER(5),
+    salesman_name VARCHAR(30),
+    sales_state   VARCHAR(20),
+    sales_amount  NUMBER(10),
+    sales_date    DATE
+) PARTITION BY LIST(sales_state)
+(
+    PARTITION sales_west VALUES ('California', 'Hawai'),
+    PARTITION sales_east VALUES ('New York', 'Virginia', 'Florida'),
+    PARTITION sales_central VALUES ('Texas', 'Illinois'),
+    PARTITION sales_other VALUES (DEFAULT)
+) ENABLE ROW MOVEMENT;
+
+INSERT INTO sales_list VALUES (1, 'Rohit Singh', 'California', 5000, TO_DATE('04/06/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_list VALUES (2, 'Yash Chavan', 'Illinois', 2000, TO_DATE('01/02/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_list VALUES (3, 'RadheShyam', 'New York', 5000, TO_DATE('04/08/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_list VALUES (4, 'Ajay Singh', 'Virginia', 5000, TO_DATE('04/11/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_list VALUES (5, 'Vivek', 'Texas', 5000, TO_DATE('12/01/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_list VALUES (6, 'Nidhi', 'Hawai', 5000, TO_DATE('24/03/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_list VALUES (7, 'Siddhart', 'Florida', 7000, TO_DATE('01/01/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_list VALUES (8, 'Sandeep', 'California', 6000, TO_DATE('06/04/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_list VALUES (9, 'Pavan', 'Illinois', 9000, TO_DATE('11/08/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_list VALUES (10, 'Shekhar', 'Geneva', 10000, TO_DATE('15/10/2024', 'DD/MM/YYYY'));
+
+select * from sales_list;
+
+select * from sales_list PARTITION(sales_east);
+
+select * from sales_list PARTITION(sales_central);
+
+select * from sales_list PARTITION(sales_other);
+
+
+#RANGEPARTITIONING
+
+CREATE TABLE sales_range(
+    salesman_id   NUMBER(5),
+    salesman_name VARCHAR(30),
+    sales_amount  NUMBER(10),
+    sales_date    DATE
+) PARTITION BY RANGE(sales_date)
+(
+    PARTITION sales_first_quater VALUES LESS THAN (TO_DATE('01/03/2024', 'DD/MM/YYYY')),
+    PARTITION sales_second_quater VALUES LESS THAN (TO_DATE('01/06/2024', 'DD/MM/YYYY')),
+    PARTITION sales_third_quarter VALUES LESS THAN (TO_DATE('01/09/2024', 'DD/MM/YYYY')),
+    PARTITION sales_fourth_quarter VALUES LESS THAN (TO_DATE('01/12/2024', 'DD/MM/YYYY'))
+);
+
+INSERT INTO sales_range VALUES (1, 'Rohit Singh', 5000, TO_DATE('04/06/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_range VALUES (2, 'Yash Chavan', 2000, TO_DATE('01/02/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_range VALUES (3, 'RadheShyam', 5000, TO_DATE('04/08/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_range VALUES (4, 'Ajay Singh', 5000, TO_DATE('04/11/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_range VALUES (5, 'Vivek', 5000, TO_DATE('12/01/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_range VALUES (6, 'Nidhi', 5000, TO_DATE('24/03/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_range VALUES (7, 'Siddhart', 7000, TO_DATE('01/01/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_range VALUES (8, 'Sandeep', 6000, TO_DATE('06/04/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_range VALUES (9, 'Pavan', 9000, TO_DATE('11/08/2024', 'DD/MM/YYYY'));
+INSERT INTO sales_range VALUES (10, 'Shekhar', 10000, TO_DATE('15/10/2024', 'DD/MM/YYYY'));
+
+select * from sales_range ORDER BY salesman_id;
+
+selcet * from sales_range PARTITION(sales_first_quater);
+
+select * from sales_range PARTITION(sales_second_quater);
+
+select * from sales_range PARTITION(sales_third_quarter);
+
+select * from sales_range PARTITION(sales_fourth_quarter);
+
+
+HASHPARTITIONING
+
+
+CREATE TABLE sales(
+    id       INT,
+    part_no  VARCHAR(20),
+    country  VARCHAR(50),
+    date1    DATE,
+    amount   NUMBER
+) PARTITION BY HASH(part_no) (
+    PARTITION p1,
+    PARTITION p2,
+    PARTITION p3
+);
+
+-- INSERT QUERIES
+INSERT INTO sales VALUES (1, '101', 'India', TO_DATE('23/02/2000', 'DD/MM/YYYY'), 10000);
+INSERT INTO sales VALUES (2, '201', 'India', TO_DATE('23/02/2001', 'DD/MM/YYYY'), 10000);
+INSERT INTO sales VALUES (3, '301', 'India', TO_DATE('23/02/2002', 'DD/MM/YYYY'), 10000);
+INSERT INTO sales VALUES (4, '401', 'England', TO_DATE('23/02/2010', 'DD/MM/YYYY'), 10000);
+INSERT INTO sales VALUES (5, '501', 'India', TO_DATE('23/02/2020', 'DD/MM/YYYY'), 10000);
+INSERT INTO sales VALUES (6, '601', 'India', TO_DATE('23/02/2006', 'DD/MM/YYYY'), 10000);
+INSERT INTO sales VALUES (7, '701', 'India', TO_DATE('23/02/2005', 'DD/MM/YYYY'), 10000);
+INSERT INTO sales VALUES (8, '801', 'India', TO_DATE('23/02/2008', 'DD/MM/YYYY'), 10000);
+INSERT INTO sales VALUES (9, '901', 'India', TO_DATE('23/02/2009', 'DD/MM/YYYY'), 10000);
+INSERT INTO sales VALUES (10, '100', 'USA', TO_DATE('23/02/2010', 'DD/MM/YYYY'), 10000);
+
+
+SELECT id,part_no,country,date1, amount, MOD(id,4) AS partion_id FROM sales;
+
+
+#####PRAC-2
+
+
+#OLAP/Implementation of Analytical Queries 
+
+CREATE TABLE employee1(
+    employee_no INT,
+    dep_no INT,
+    bdate DATE,
+    salary INT,
+    comm INT,
+    job VARCHAR(25)
+);
+
+-- INSERT QUERY IN STANDARD FORMAT
+INSERT INTO employee1 VALUES (101, 10, TO_DATE('03/09/2002', 'DD/MM/YYYY'), 30000, 2000, 'Manager');
+INSERT INTO employee1 VALUES (102, 11, TO_DATE('13/07/2003', 'DD/MM/YYYY'), 23000, 1000, 'Designer');
+INSERT INTO employee1 VALUES (103, 11, TO_DATE('22/08/2003', 'DD/MM/YYYY'), 23500, 1000, 'Designer');
+INSERT INTO employee1 VALUES (104, 12, TO_DATE('21/04/2004', 'DD/MM/YYYY'), 22000, 800, 'Tester');
+INSERT INTO employee1 VALUES (105, 12, TO_DATE('17/11/2003', 'DD/MM/YYYY'), 21000, 800, 'Tester');
+INSERT INTO employee1 VALUES (106, 13, TO_DATE('04/02/2004', 'DD/MM/YYYY'), 18000, 400, 'Developer');
+INSERT INTO employee1 VALUES (107, 13, TO_DATE('04/12/2002', 'DD/MM/YYYY'), 19000, 800, 'Developer');
+INSERT INTO employee1 VALUES (108, 14, TO_DATE('15/06/2005', 'DD/MM/YYYY'), 12000, 500, 'Sales');
+INSERT INTO employee1 VALUES (109, 14, TO_DATE('19/02/2004', 'DD/MM/YYYY'), 12500, 550, 'Sales');
+INSERT INTO employee1 VALUES (110, 14, TO_DATE('14/11/2005', 'DD/MM/YYYY'), 13500, 600, 'Sales');
+
+-- SELECT QUERY WITH ROLLUP
+SELECT dep_no, job, COUNT(*), SUM(salary)
+FROM employee1
+GROUP BY ROLLUP(dep_no, job);
+-------------   -------------
+SELECT dep_no, job, COUNT(*), SUM(salary)
+FROM employee1
+GROUP BY CUBE(dep_no, job);
+
+----RANK
+
+SELECT employee_no, dep_no, salary, comm,
+RANK() OVER (PARTITION BY dep_no ORDER BY salary)
+AS Rank FROM employee1;
+
+
+-----DENSE_RANK
+
+SELECT employee_no,dep_no,salary,comm,
+DENSE_RANK() OVER (PARTITION BY dep_no ORDER BY salary) AS Rank
+FROM employee1;
+
+-------lead
+
+SELECT employee_no,bdate,
+LEAD(bdate,1) OVER (order by bdate)
+AS "next" from employee1;
+
+----lag
+
+select employee_no,bdate,
+lag(bdate,1) Over(order by bdate)
+as "next" from employee1;
+
+
+select employee_no bdate,
+lag(bdate,1) over(order by bdate)
+as "previous" from employee1 where dep_no=10; 
+
+----
+select dep_no,salary,
+max(salary)keep(DENSE_RANK FIRST ORDER BY salary desc)
+over(PARTITION BY dep_no)"max" from employee1;
+
+-----
+select dep_no,salary,
+min(salary)keep(DENSE_RANK FIRST ORDER BY salary desc)
+over(PARTITION BY dep_no)"min" from employee1;
+
+---------------------------------------------------------------------------------
+
+prac-3
+
+Implementation of ORDBMS Concepts like ADT,Reference 
+
+
+create type KB_name As object 
+    ( 
+    fname varchar(20), 
+    mname varchar(20), 
+    Iname varchar(20) 
+    ); 
+    / 
+
+
+create type KBB_address As object 
+    ( 
+    street varchar(20), 
+    city varchar(20), 
+    pincode number(10) 
+    ); 
+    /
+
+
+ create table Friend1 
+    ( 
+    c_id number(5) primary key, 
+    c_name KB_name, 
+    c_add KBB_address, 
+    c_phno number(10) 
+    ); 
+
+insert into Friend1 
+    values(1,KB_name('Krutarth','P','Bodas'), 
+    KBB_address('Charai','Thane',400602),7249183848);
+
+
+insert into Friend1 
+    values(2,KB_name('Noel','D','Ruke'), 
+    KBB_address('Gimavhne','Dapoli',415712),7499752165);
+
+
+ select*from Friend1; 
+
+select c_name from Friend1; 
+
+
+
+create type KB_name As object 
+    ( 
+    fname varchar(20), 
+    mname varchar(20), 
+    Iname varchar(20) 
+    ); 
+    / 
+
+
+create type KBB_address As object 
+    ( 
+    street varchar(20), 
+    city varchar(20), 
+    pincode number(10) 
+    ); 
+    /
+
+
+ create table Friend1 
+    ( 
+    c_id number(5) primary key, 
+    c_name KB_name, 
+    c_add KBB_address, 
+    c_phno number(10) 
+    ); 
+
+insert into Friend1 
+    values(1,KB_name('Krutarth','P','Bodas'), 
+    KBB_address('Charai','Thane',400602),7249183848);
+
+
+insert into Friend1 
+    values(2,KB_name('Noel','D','Ruke'), 
+    KBB_address('Gimavhne','Dapoli',415712),7499752165);
+
+
+ select*from Friend1; 
+
+
+
+
+ insert into Friend1 
+    values(3,KB_name('Atharv','S','Mhabadi'), 
+    KBB_address('Peth','Pune',415412),7499752888); 
+
+
+insert into Friend1 
+  values(4,KB_name('Vinay','V','Wagh'), 
+  KBB_address('Taddev','Mumbai',400012),8779621917);
+
+
+
+  insert into Friend1 
+  values(5,KB_name('Avaneesh','S','Bagaitkar'), 
+  KBB_address('Gimavhne','Dapoli',400603),7249156165); 
+
+
+ DESC Friend1;
+
+ set describe depth 2; 
+ 
+desc Friend1; 
+
+ select c.c_add.street from Friend1 c where c_id=1; 
+
+ select*from Friend1;
+
+ select c_name from Friend1;
+
+ select c_id,c.c_name.Iname from Friend1 c;
+
+ select c_id,c.c_name.fname from Friend1 c;
+
+ select c.c_name.fname||' '||c.c_name.mname||' '||c.c_name.Iname from Friend1 c; 
+
+
+
+alter type KBB_address 
+    add attribute(name KB_name)cascade; 
+
+create table Friend2 
+    (c_id number(5), 
+    add1 KBB_address); 
+
+
+
+insert into Friend2 
+    values(6, 
+    KBB_address('Charai','Thane',400601, 
+    KB_name('Kishore','D','Pawar')));
+
+
+desc Friend2; 
+
+ select c_id from Friend2;
+
+ select c_id,c.add1.street,c.add1.name.fname from Friend2 c; 
+
+
+ create or replace type stud_type as object 
+    (roll_no number(5), 
+    name varchar2(30) 
+    ); 
+    /
+
+
+create table Students of stud_type; 
+
+ insert into Students values(stud_type(1,'KPB')); 
+
+ insert into Students values(stud_type(2,'NDR'));
+
+ select*from Students;
+
+
+insert into Students values(stud_type(3,'ASM')); 
+
+
+ insert into Students values(stud_type(4,'ASB')); 
+
+ insert into Students values(stud_type(5,'GMK')); 
+
+
+ select*from Students;
+
+ select roll_no from Students;
+
+select s.roll_no from Students s;
+
+
+ select*from Students s 
+    where s.name='ASM'; 
+
+
+select*from Students s 
+    where s.name='GMK'; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Practical No.: 5 
+
+#Introduction To R Programming
+
+
+
+
+
+
+
+--------------------------------------------------------------
+#Practical .: 7 (grph)
+#Implementation & Analysis of Linear Regression through  
+#graphical methods. 
+
+
+# Load the mtcars dataset
+data(mtcars)
+
+# Fit the linear model
+model <- lm(mpg ~ wt, data = mtcars)
+
+# Create the scatterplot with regression line
+plot(mtcars$wt, mtcars$mpg, 
+     main = "Scatterplot of Weight vs. MPG with Regression Line", 
+     xlab = "Weight", 
+     ylab = "Miles Per Gallon", 
+     pch = 16, 
+     col = "blue")
+abline(model, col = "red", lwd = 2)
+
+# Set up the plotting area for diagnostic plots
+par(mfrow = c(2, 2))
+
+# Create the diagnostic plots
+plot(model, pch = 16, col = "blue")
+
+# Reset the plotting area to default
+par(mfrow = c(1, 1))
+
+---------------------------------------------------------------------------------
+
+#Practical No.: 8 
+#Implementation & Analysis Classification algorithms like Naïve Bayesian, 
+#K-Nearest Neighbour, ID3, C4.5.
+
+
+Decision Tree :
+
+# Load necessary libraries
+library(class) 
+library(e1071)             #install.packages("e1071") 
+library(rpart) 
+library(C50)               #install.packages("C50") 
+library(ggplot2)           #install.packages("ggplot2") 
+library(ROCR)              #install.packages("ROCR") 
+library(rpart.plot)        #install.packages("rpart.plot")  
+
+# Load the iris dataset
+data(iris)
+
+# Set seed for reproducibility
+set.seed(123)
+
+# Split the data into training and testing sets
+train_indices <- sample(1:nrow(iris), 0.7 * nrow(iris))
+train_data <- iris[train_indices, ] 
+test_data <- iris[-train_indices, ]
+
+
+# Build the decision tree model
+dt_model <- rpart(Species ~ ., data = train_data, method = "class")
+
+# Make predictions on the test set
+dt_pred <- predict(dt_model, test_data, type = "class")
+
+# Calculate the accuracy
+dt_accuracy <- sum(dt_pred == test_data$Species) / nrow(test_data) 
+cat("Decision Tree Accuracy:", dt_accuracy, "\n")
+    
+# Print the summary of the decision tree model
+print(summary(dt_model))    
+
+# Plot the decision tree
+rpart.plot(dt_model, type = 2, extra = 101)
+    
+-------------------------------------------------------------------------------------------------    
+
+#Nayive Bayesian :
+
+# Load necessary libraries
+
+library(class) 
+library(e1071) 
+library(rpart) 
+library(rpart.plot) 
+library(C50) 
+library(ggplot2) 
+library(ROCR)
+library(dplyr)
+
+# Load the iris dataset
+data(iris) 
+
+# Set seed for reproducibility
+set.seed(123) 
+
+# Split the data into training and testing sets
+train_indices <- sample(1:nrow(iris), 0.7 * nrow(iris)) 
+train_data <- iris[train_indices, ] 
+test_data <- iris[-train_indices, ] 
+
+# Fit the Naive Bayes model
+nb_model <- naiveBayes(Species ~ ., data = train_data) 
+
+# Make predictions on the test set
+nb_pred <- predict(nb_model, test_data[, -5]) 
+
+# Calculate the accuracy
+nb_accuracy <- sum(nb_pred == test_data$Species) / nrow(test_data) 
+cat("Naive Bayes Accuracy:", nb_accuracy, "\n")
+
+# Print the summary of the Naive Bayes model
+print(summary(nb_model))
+
+# Create the confusion matrix
+nb_table <- table(Actual = test_data$Species, Predicted = nb_pred) 
+
+# Plot the confusion matrix
+ggplot(as.data.frame.table(nb_table), aes(x = Actual, y = Predicted, fill = Freq)) + 
+  geom_tile() + 
+  labs(title = "Naive Bayes Confusion Matrix", 
+       x = "Actual", 
+       y = "Predicted")
+
+---------------------------------------------------------------------------------------------
+K-Nearest  : 
+
+# Install necessary packages if not already installed
+install.packages("cluster")
+install.packages("factoextra")
+install.packages("gridExtra")
+
+# Load necessary libraries
+library(cluster)
+library(factoextra)
+library(gridExtra)
+
+# Assuming you have a dataset named 'animals', load and preprocess the data
+data <- animals
+data <- na.omit(data)
+
+# Display the first 10 rows of the data
+head(data, n = 10)
+
+# Perform k-means clustering with different number of centers
+kn <- kmeans(data, centers = 2, nstart = 25)
+kn2 <- kmeans(data, centers = 3, nstart = 25)
+kn3 <- kmeans(data, centers = 4, nstart = 25)
+kn4 <- kmeans(data, centers = 5, nstart = 25)
+
+# Visualize the clusters
+plot1 <- fviz_cluster(kn, geom = "point", data = data) + ggtitle("2 clusters")
+plot2 <- fviz_cluster(kn2, geom = "point", data = data) + ggtitle("3 clusters")
+plot3 <- fviz_cluster(kn3, geom = "point", data = data) + ggtitle("4 clusters")
+plot4 <- fviz_cluster(kn4, geom = "point", data = data) + ggtitle("5 clusters")
+
+# Arrange the plots in a grid
+grid.arrange(plot1, plot2, plot3, plot4, nrow = 2)
+
+
+---------------------------------------------------------------------------------------------------
+
+#K-Nearest Plot 
+
+--------------------------------------------------------------------------
+library(rpart)
+library(rpart.plot)
+id3_model <- rpart(Species ~ ., data = train_data, method = "class") 
+id3_pred <- predict(id3_model, test_data, type = "class") 
+id3_accuracy <- sum(id3_pred == test_data$Species) / nrow(test_data) 
+cat("ID3 Accuracy:", id3_accuracy, "\n")
+rpart.plot(id3_model, type = 2, extra = 101) 
+-----------------------------------------------------------------------------
+
+###C4.5 : 
+
+
+# If not already installed
+install.packages("rpart")
+install.packages("rpart.plot")
+install.packages("C50")
+
+# Load the packages
+library(rpart)
+library(rpart.plot)
+library(C50)
+
+# ID3 Model
+id3_model <- rpart(Species ~ ., data = train_data, method = "class")
+id3_pred <- predict(id3_model, test_data, type = "class")
+id3_accuracy <- sum(id3_pred == test_data$Species) / nrow(test_data)
+cat("ID3 Accuracy:", id3_accuracy, "\n")
+
+# Plot ID3 Model
+rpart.plot(id3_model, type = 2, extra = 101)
+
+# C4.5 Model
+c45_model <- C5.0(train_data[, -5], train_data$Species)
+c45_pred <- predict(c45_model, newdata = test_data[, -5])
+c45_accuracy <- sum(c45_pred == test_data$Species) / nrow(test_data)
+cat("C4.5 Accuracy:", c45_accuracy, "\n")
+
+# Plot C4.5 Model
+plot(c45_model)
+
+---------------------------------------------------------------------------------------
+
+#Practical .: 9 
+#Implementation & Analysis of Apriori Algorithm using  
+#Market Basket Analysis 
+
+
+# Install the packages (if not already installed)
+install.packages("arules")
+install.packages("arulesViz")
+
+# Load the packages
+library(arules)
+library(arulesViz)
+
+
+# Load the Groceries data
+data("Groceries")
+
+# Summarize the Groceries data
+summary(Groceries)
+
+# Generate association rules with specified support and confidence
+rules <- apriori(Groceries, parameter = list(support = 0.001, confidence = 0.5))
+
+# Plot the rules
+plot(rules, method = "graph", control = list(type = "items"))
+
+
+
+---------------------------------------------------------------------------------------------------
+
+#Practical .:10 
+#Implementation & analysis of clustering algorithms like  
+#K-means & Agglomarative , Divisive.
+
+
+# Install the package (if not already installed)
+install.packages("ggplot2")
+
+# Load the package
+library(ggplot2)
+
+
+# View the first few rows of the iris dataset
+head(iris)
+
+# Create a scatter plot with ggplot2
+ggplot(iris, aes(Petal.Length, Petal.Width, color = Species)) + 
+  geom_point()
+
+# Set seed for reproducibility
+set.seed(20)
+
+# Perform k-means clustering
+irisCluster <- kmeans(iris[, 3:4], 3, nstart = 20)
+
+# Print the clustering results
+print(irisCluster)
+
+Cluster means: 
+
+# Add the cluster results to the iris dataset
+iris$Cluster <- as.factor(irisCluster$cluster)
+
+# Create a scatter plot with clusters
+ggplot(iris, aes(Petal.Length, Petal.Width, color = Cluster)) + 
+  geom_point()
+
+
+------------------------------------------------------------------------------------------------------
+
+
+
+
+# Install the ggplot2 package (if not already installed)
+install.packages("ggplot2")
+
+# Load the ggplot2 package
+library(ggplot2)
+
+# View the first few rows of the iris dataset
+head(iris)
+
+# Create a scatter plot with ggplot2
+ggplot(iris, aes(Petal.Length, Petal.Width, color = Species)) + 
+  geom_point()
+
+# Set seed for reproducibility
+set.seed(20)
+
+# Perform k-means clustering
+irisCluster <- kmeans(iris[, 3:4], 3, nstart = 20)
+
+# Print the clustering results
+print(irisCluster)
+
+# Add the cluster results to the iris dataset
+iris$Cluster <- as.factor(irisCluster$cluster)
+
+# Create a scatter plot with clusters
+ggplot(iris, aes(Petal.Length, Petal.Width, color = Cluster)) + 
+  geom_point()
+
+
+----------------------------------------------------------------------------------------------------------
+
+Agglomerative :  
+
+clusters <- hclust(dist(iris[,3:4]), method = 'average') 
+plot(clusters)  
+clusterCut <- cutree(clusters, 3) 
+table(clusterCut, iris$Species)
+-----------------------------------------------------------------
+Divisive : 
+
+# Install the ggplot2 package (if not already installed)
+install.packages("ggplot2")
+
+# Load the ggplot2 package
+library(ggplot2)
+
+# Perform hierarchical clustering
+features <- iris[, c("Sepal.Length", "Sepal.Width")]
+hclust_result <- hclust(dist(features), method = "complete")
+
+# Cut the dendrogram to form the desired number of clusters
+num_clusters <- 3
+clusters <- cutree(hclust_result, k = num_clusters)
+
+# Add the cluster results to the iris dataset
+iris$cluster <- as.factor(clusters)
+
+# Create a scatter plot with ggplot2
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = cluster)) +
+  geom_point(size = 3) +
+  ggtitle("Divisive Clustering of Iris Dataset") +
+  labs(color = "Cluster") +
+  theme_minimal()
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Agglomerative
+
+
+# Implementation of Agglomerative Clustering
+
+# Install and load the necessary packages
+install.packages("cluster")
+install.packages("factoextra")
+
+library(cluster)
+library(factoextra)
+
+# Generate synthetic dataset
+set.seed(123) # For reproducibility
+x <- c(rnorm(50, mean = 5, sd = 1), rnorm(50, mean = 8, sd = 1))
+y <- c(rnorm(50, mean = 5, sd = 1), rnorm(50, mean = 8, sd = 1))
+data <- data.frame(x, y)
+
+# Plot the dataset using base R
+plot(data, main = "Scatter Plot of the Dataset", pch = 19, col = "blue")
+
+# Compute the distance matrix
+dist_matrix <- dist(data)
+
+# Perform Agglomerative Clustering using complete linkage
+hc_complete <- hclust(dist_matrix, method = "complete")
+
+# Plot the dendrogram
+plot(hc_complete, main = "Dendrogram (Complete Linkage)",
+     xlab = "Points", ylab = "Height", sub = "")
+
+# Cut the dendrogram into 2 clusters
+clusters <- cutree(hc_complete, k = 2)
+
+# Add cluster assignments to the dataset
+data$cluster <- as.factor(clusters)
+
+# Visualize the clusters using base R
+plot(data$x, data$y, col = data$cluster, pch = 19,
+     xlab = "X", ylab = "Y", main = "Agglomerative Clustering (k=2)")
+
+# Perform Agglomerative Clustering using average linkage
+hc_average <- hclust(dist_matrix, method = "average")
+
+# Plot the dendrogram
+plot(hc_average, main = "Dendrogram (Average Linkage)",
+     xlab = "Points", ylab = "Height", sub = "")
+
+# Cut the dendrogram into 3 clusters
+clusters_3 <- cutree(hc_average, k = 3)
+
+# Visualize the clusters using base R
+plot(data$x, data$y, col = clusters_3, pch = 19,
+     xlab = "X", ylab = "Y", main = "Agglomerative Clustering (k=3)")
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------
+
+
+?#AprioriUsingMaketBasketAnalysis
+
+# Install and load the necessary packages
+install.packages("arules")
+install.packages("arulesViz")
+
+library(arules)
+library(arulesViz)
+
+# Load the Groceries dataset (preloaded in arules package)
+data("Groceries")
+
+# View the structure of the dataset
+summary(Groceries)
+
+# Apply the Apriori algorithm
+# We set the support = 0.01 (minimum support of 1%), and confidence = 0.5 (minimum confidence of 50%)
+rules <- apriori(Groceries, parameter = list(support = 0.01, confidence = 0.5, target = "rules"))
+
+# Inspect the generated rules
+inspect(head(rules, 10))
+
+# Sort the rules by lift
+sorted_rules <- sort(rules, by = "lift")
+inspect(head(sorted_rules, 10))
+
+# Filter rules based on support > 0.02 and confidence > 0.7
+filtered_rules <- subset(rules, support > 0.02 & confidence > 0.7)
+inspect(filtered_rules)
+
+# Visualize the rules
+# Method "graph" will visualize the rules in a graph format
+plot(rules, method = "graph", control = list(type = "items"))
+
+# Visualize with a scatter plot to show support vs confidence
+plot(rules, method = "scatter", control = list(label = "lift"))
+
+# Visualize using a matrix-based plot
+plot(rules, method = "matrix", control = list(reorder = "support/confidence"))
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+#AprioriUsingMaketBasketAnalysis
+
+
+# 1 Install and Load the Necessary Packages:
+install.packages("arules")
+install.packages("arulesViz")
+
+
+# 2 Load and Summarize the Groceries Dataset:
+library(arules)
+library(arulesViz)
+
+# 3 Apply the Apriori Algorithm:
+
+data("Groceries")
+summary(Groceries)
+
+#Generate Rules:
+rules <- apriori(Groceries, parameter = list(support = 0.01, confidence = 0.5, target = "rules"))
+
+#Inspect the First 10 Rules:
+
+inspect(head(rules, 10))
+
+
+#Sort Rules by Lift and Inspect the Top 10:
+
+sorted_rules <- sort(rules, by = "lift")
+inspect(head(sorted_rules, 10))
+
+#Filter Rules with Support > 0.02 and Confidence > 0.7:
+
+filtered_rules <- subset(rules, support > 0.02 & confidence > 0.7)
+inspect(filtered_rules)
+
+#Visualize the Rules
+
+#Graph Plot:
+plot(rules, method = "graph", control = list(type = "items"))
+
+#Scatter Plot (Support vs Confidence):
+plot(rules, method = "scatter", control = list(label = "lift"))
+
+#Matrix-Based Plot:
+plot(rules, method = "matrix", control = list(reorder = "support/confidence"))
+
+
+
+-----------------------------------------------------------------------------------------------
+#ClassificationAlgorithmsID3&C45
+
+# Installing required packages
+install.packages('C50')  # For C4.5
+install.packages('rpart')  # For ID3
+install.packages('caret')  # For evaluation
+
+# Load necessary libraries
+library(C50)      # For C4.5
+library(rpart)    # For ID3
+library(caret)    # For evaluation
+
+# Load the Iris dataset
+data(iris)
+
+# Split the dataset into training and testing sets
+set.seed(42)
+trainIndex <- createDataPartition(iris$Species, p = 0.8, list = FALSE)
+trainData <- iris[trainIndex, ]
+testData <- iris[-trainIndex, ]
+
+### Implementing ID3 using rpart ###
+id3_model <- rpart(Species ~ ., data = trainData, method = "class")  # Train ID3 model
+
+# Make predictions
+id3_predictions <- predict(id3_model, testData, type = "class")
+
+# Evaluate ID3
+id3_confMatrix <- confusionMatrix(id3_predictions, testData$Species)
+cat("ID3 Confusion Matrix:\n")
+print(id3_confMatrix)
+
+# Plot the ID3 decision tree
+cat("\nPlotting the ID3 decision tree...\n")
+plot(id3_model)
+text(id3_model, use.n = TRUE)
+
+### Implementing C4.5 using C50 ###
+c4_5_model <- C5.0(Species ~ ., data = trainData)  # Train C4.5 model
+
+# Make predictions
+c4_5_predictions <- predict(c4_5_model, testData)
+
+# Evaluate C4.5
+c4_5_confMatrix <- confusionMatrix(c4_5_predictions, testData$Species)
+cat("\nC4.5 Confusion Matrix:\n")
+print(c4_5_confMatrix)
+
+# Plot the C4.5 decision tree (optional)
+cat("\nPlotting the C4.5 decision tree...\n")
+plot(c4_5_model)
+
+# Compare accuracies
+id3_accuracy <- sum(id3_predictions == testData$Species) / length(testData$Species)
+c4_5_accuracy <- sum(c4_5_predictions == testData$Species) / length(testData$Species)
+
+cat("\nID3 Accuracy:", id3_accuracy * 100, "%\n")
+cat("C4.5 Accuracy:", c4_5_accuracy * 100, "%\n")
+
+-------------------------------------------------------------------------------------------------------------
+#DataPreprocessing
+
+# Creating a vector
+x <- c("female", "male", "male", "female")
+print(x)
+
+# Converting the vector x into a factor
+# Named gender
+gender <- factor(x)
+print(gender)
+
+# Creating a factor with levels defined by programmer
+gender <- factor(c("male", "female", "male", "female"),
+                 levels = c("female", "transgender", "male"))
+print(gender)
+
+# Checking for a factor in R
+gender <- factor(c("female", "male", "male", "female"))
+print(is.factor(gender))
+
+# Accessing elements of a factor in R
+gender <- factor(c("female", "male", "male", "female"))
+print(gender[3])
+
+# More than one element can be accessed at a time
+gender <- factor(c("female", "male", "male", "female"))
+print(gender[c(2, 4)])
+
+# Subtract one element at a time
+gender <- factor(c("female", "male", "male", "female"))
+print(gender[-3])
+
+# Modification of a factor in R
+gender <- factor(c("female", "male", "male", "female"))
+gender[2] <- "female"
+print(gender)
+
+# R program to create dataframe
+# Creating a data frame 
+friend.data <- data.frame(
+  friend_id = c(1:5),
+  friend_name = c("Sachin", "Sourav", "Dravid", "Sehwag", "Dhoni"),
+  stringsAsFactors = FALSE
+)
+
+# Print the data frame
+print(friend.data)
+
+# R program to get the structure of the data frame
+# Using str()
+print(str(friend.data))
+
+# R program to get the summary of the data frame
+# Using summary()
+print(summary(friend.data))
+
+# R program to extract data from the data frame
+# Extracting friend_name column
+result <- data.frame(friend.data$friend_name)
+print(result)
+
+# R program to expand the data frame
+# Expanding data frame
+friend.data$location <- c("kolkata", "Delhi", "BAngalore", "Hyderbad", "chennai")
+resultant <- friend.data
+
+# Print the modified data frame
+print(resultant)
+
+# Access items using []
+print(friend.data[1])
+
+# Access items using [[]]
+print(friend.data[["friend_name"]])
+
+# Access items using $
+print(friend.data$friend_id)
+
+# Find out the number of rows and columns
+print(dim(friend.data))
+
+# Add rows and columns in R data frame
+
+# Creating a dataframe representing products in a store
+Products <- data.frame(
+  Product_ID = c(101, 102, 103),
+  Product_Name = c("T-Shirt", "Jeans", "Shoes"),
+  Price = c(15.99, 29.99, 49.99),
+  Stock = c(50, 30, 25)
+)
+
+# Print the existing dataframe
+cat("Existing dataframe (Products):\n")
+print(Products)
+
+# Adding a new row for a new product
+New_Product <- c(104, "Sun-Glasses", 39.99, 40)
+Products <- rbind(Products, New_Product)
+
+# Print the updated data frame after adding the new product
+cat("\nUpdated dataframe after adding new product:\n")
+print(Products)
+
+# Adding a new column for 'Discount' to the data frame
+Discount <- c(5, 10, 8, 15)  # New column values for discount
+Products <- cbind(Products, Discount)
+
+# Rename the added column 
+colnames(Products)[ncol(Products)] <- "Discount"  # Renaming the last column
+
+# Print the updated data frame after adding the new column
+cat("\nUpdated dataframe after adding a new column 'Discount':\n")
+print(Products)
+
+# Combining Data Frames in R
+# Combine R Data Frame vertically
+
+# Creating two sample data frames
+df1 <- data.frame(
+  Name = c("Alice", "Bob"),
+  Age = c(25, 30),
+  Score = c(80, 75)
+)
+
+df2 <- data.frame(
+  Name = c("Charlie", "David"),
+  Age = c(28, 35),
+  Score = c(90, 85)
+)
+
+# Print the existing data frames
+cat("Dataframe 1:\n")
+print(df1)
+
+cat("Dataframe 2:\n")
+print(df2)
+
+# Combining the data frames using rbind()
+combined_df <- rbind(df1, df2)
+
+# Print the combined dataframe
+cat("\nCombined Dataframe:\n")
+print(combined_df)
+
+--------------------------------------------------------------------------------------
+
+#IntroductionToBasics
+
+# Install and Load Packages
+install.packages("readr")       # For reading CSV files
+install.packages("readxl")      # For reading Excel files
+install.packages("openxlsx")
+
+library(readr)
+library(readxl)
+
+# Data Types and Checking Types
+# Create variables of different types
+num_var <- 42                 # Numeric
+char_var <- "Hello, R!"       # Character
+logical_var <- TRUE           # Logical
+vector_var <- c(1, 2, 3, 4)   # Vector
+matrix_var <- matrix(1:9, nrow = 3, ncol = 3)  # Matrix
+list_var <- list(num_var, char_var, logical_var)  # List
+factor_var <- factor(c("Male", "Female", "Male"))  # Factor
+data_frame_var <- data.frame(ID = 1:3, Name = c("A", "B", "C"), Age = c(23, 25, 30))  # Data Frame
+
+# Check variable types
+print(class(num_var))         # Numeric
+print(class(char_var))        # Character
+print(class(matrix_var))      # Matrix
+
+# Print variables and objects
+print(num_var)
+print(vector_var)
+print(matrix_var)
+print(list_var)
+print(factor_var)
+print(data_frame_var)
+
+# cbind and rbind
+col_bind <- cbind(c(1, 2, 3), c(4, 5, 6))  # Combine columns
+row_bind <- rbind(c(1, 2, 3), c(4, 5, 6))  # Combine rows
+print(col_bind)
+print(row_bind)
+
+# Setting and Getting Working Directory
+setwd("D:/RDirectory")  # Change working directory
+print(getwd())              # Print current working directory
+
+# Built-in Data
+print(data())               # List available datasets
+print(head(mtcars))         # Example: mtcars dataset
+
+# Reading and Writing Data
+# Writing to CSV
+write.csv(data_frame_var, "data_frame.csv")
+
+# Reading from CSV
+csv_data <- read_csv("data_frame.csv")
+print(csv_data)
+
+# Reading from Excel
+# (Ensure "data.xlsx" exists in your working directory)
+# Example Excel file read
+write.xlsx(data_frame_var, "data.xlsx")  # Requires 'openxlsx' package
+excel_data <- read_excel("data.xlsx")
+print(excel_data)
+
+# Reading from the Console
+cat("Enter a value: ")
+user_input <- scan(what = character(), nmax = 1)
+print(user_input)
+
+# Attach and Detach Data
+attach(mtcars)
+print(mean(mpg))  # Access mpg directly
+detach(mtcars)
+
+# Removing Objects
+rm(num_var, char_var)  # Remove specific variables
+rm(list = ls())        # Remove all objects from the environment
+print(ls())            # List objects in the environment
+
+
+
+----------------------------------------------------------------------
+
+#KMEAN
+
+# Install required packages
+install.packages("graphics")
+install.packages("factoextra")
+
+# Load libraries
+library(graphics)
+library(factoextra)
+
+# Generate synthetic dataset
+set.seed(123) # For reproducibility
+x <- c(rnorm(50, mean = 5, sd = 1), rnorm(50, mean = 8, sd = 1))
+y <- c(rnorm(50, mean = 5, sd = 1), rnorm(50, mean = 8, sd = 1))
+data <- data.frame(x, y)
+
+# Plot the dataset using base R
+plot(data, main = "Scatter Plot of the Dataset", pch = 19, col = "blue")
+
+# Apply K-Means clustering with k = 2
+kmeans_result <- kmeans(data, centers = 2, nstart = 25)
+
+# Display the result
+print(kmeans_result)
+
+# Add cluster assignments to the dataset
+data$cluster <- as.factor(kmeans_result$cluster)
+
+# Visualize clusters using base R
+plot(data$x, data$y, col = data$cluster, pch = 19,
+     xlab = "X", ylab = "Y", main = "K-Means Clustering")
+points(kmeans_result$centers, col = 1:2, pch = 8, cex = 2) # Cluster centers
+
+# Elbow method to determine optimal clusters
+wss <- numeric(10) # Within-cluster sum of squares
+for (k in 1:10) {
+  kmeans_result <- kmeans(data[, 1:2], centers = k, nstart = 25)
+  wss[k] <- kmeans_result$tot.withinss
+}
+
+# Plot the Elbow graph
+plot(1:10, wss, type = "b", pch = 19, frame = FALSE,
+     xlab = "Number of Clusters K", ylab = "Total Within-Cluster Sum of Squares",
+     main = "Elbow Method for Optimal K")
+
+# Perform clustering with the optimal number of clusters (e.g., k = 3)
+kmeans_optimal <- kmeans(data[, 1:2], centers = 3, nstart = 25)
+
+# Visualize optimal clustering using base R
+plot(data$x, data$y, col = kmeans_optimal$cluster, pch = 19,
+     xlab = "X", ylab = "Y", main = "Optimal K-Means Clustering (k=3)")
+points(kmeans_optimal$centers, col = 1:3, pch = 8, cex = 2)
+
+--------------------------------------------------------------------------------
+
+#KNearestNeighbour(KNN)
+
+
+# K-Nearest Neighbor (KNN)
+
+# Load necessary libraries
+library(class)  # For KNN algorithm
+library(datasets)  # For the Iris dataset
+library(caret)  # For model evaluation
+
+# Load the Iris dataset
+data(iris)
+
+# Split the dataset into training and testing sets
+set.seed(42)
+
+trainIndex <- createDataPartition(iris$Species, p = 0.8, list = FALSE)
+trainData <- iris[trainIndex, ]
+testData <- iris[-trainIndex, ]
+
+# Prepare the data for the model
+trainX <- trainData[, -5]  # Exclude the target variable 'Species'
+trainY <- trainData$Species
+testX <- testData[, -5]
+testY <- testData$Species
+
+# Train the KNN model (with K=3)
+k <- 3
+knn_model <- knn(train = trainX, test = testX, cl = trainY, k = k)
+
+# Evaluate the model
+confMatrix <- confusionMatrix(knn_model, testY)
+print(confMatrix)
+
+# Calculate the accuracy
+accuracy <- sum(knn_model == testY) / length(testY)
+cat("Accuracy:", accuracy * 100, "%\n")
+
+# Plotting the results (For the first two features)
+plot(testX[, 1], testX[, 2], col = as.factor(knn_model), pch = 19, 
+     xlab = "Feature 1", ylab = "Feature 2", main = "KNN Classification")
+legend("topright", legend = levels(testY), fill = 1:length(levels(testY)))
+
+
+------------------------------------------------------------------------------------
+
+#LinearRegression
+
+# Create the data frame
+data <- data.frame(
+  cgpa = c(6.8, 5.9, 5.3, 7.4, 5.8, 7.1, 5.7, 5, 6.1, 5.1, 6, 6.9, 5.4, 6.4, 6.1, 5.1, 5.2, 3.3, 4, 5.2, 6.6, 7.1, 4.9,
+           4.7, 4.7, 5, 7, 6, 5.2, 7, 7.6, 3.9, 7, 6, 4.8, 6.8, 5.7, 8.1, 6.5, 4.6, 4.9, 5.4, 7.6, 6.8, 7.5, 6, 5.3, 5.2,
+           6.6, 5.4),
+  iq = c(123, 106, 121, 132, 142, 48, 143, 63, 156, 66, 45, 138, 139, 116, 103, 176, 224, 183, 100, 132, 120, 151, 120, 87,
+         121, 91, 199, 124, 90, 112, 128, 109, 139, 149, 163, 90, 140, 149, 160, 146, 134, 114, 89, 141, 61, 66, 114, 161, 
+         138,150),
+  placement = c(1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1,
+                0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0)
+)
+
+# View the data frame
+print(data)
+
+# Scatter plot for cgpa vs placement
+plot(data$cgpa, data$placement,
+     xlab = "CGPA",
+     ylab = "Placement",
+     main = "Scatter Plot of CGPA vs Placement",
+     col = "blue", pch = 19)
+
+# Scatter plot for iq vs placement
+plot(data$iq, data$placement,
+     xlab = "IQ",
+     ylab = "Placement",
+     main = "Scatter Plot of IQ vs Placement",
+     col = "red", pch = 19)
+
+# Linear regression for cgpa vs placement
+lm_cgpa <- lm(placement ~ cgpa, data = data)
+
+# Summary of the model
+summary(lm_cgpa)
+
+# Plotting the regression line on the scatter plot
+plot(data$cgpa, data$placement,
+     xlab = "CGPA",
+     ylab = "Placement",
+     main = "Linear Regression: CGPA vs Placement",
+     col = "blue", pch = 19)
+abline(lm_cgpa, col = "red")
+
+# Linear regression for iq vs placement
+lm_iq <- lm(placement ~ iq, data = data)
+
+# Summary of the model
+summary(lm_iq)
+
+# Plotting the regression line on the scatter plot
+plot(data$iq, data$placement,
+     xlab = "IQ",
+     ylab = "Placement",
+     main = "Linear Regression: IQ vs Placement",
+     col = "red", pch = 19)
+abline(lm_iq, col = "green")
+
+
+
+-------------------------------------------------------------------------------
+
+#NaiveBayes
+
+# Load necessary libraries
+library(class)
+library(e1071) 
+library(rpart) 
+library(rpart.plot) 
+library(C50) 
+library(ggplot2) 
+library(ROCR) 
+
+# Load the Iris dataset
+data(iris) 
+
+# Set seed for reproducibility
+set.seed(123) 
+
+# Split the dataset into training and testing sets
+train_indices <- sample(1:nrow(iris), 0.7 * nrow(iris)) 
+train_data <- iris[train_indices, ] 
+test_data <- iris[-train_indices, ] 
+
+# Train the Naive Bayes model
+nb_model <- naiveBayes(Species ~ ., data = train_data)
+
+# Make predictions
+nb_pred <- predict(nb_model, test_data[, -5])
+
+# Calculate accuracy
+nb_accuracy <- sum(nb_pred == test_data$Species) / nrow(test_data) 
+cat("Naive Bayes Accuracy:", nb_accuracy, "\n") 
+
+# Summary of the model
+summary(nb_model)
+
+# Create confusion matrix
+nb_table <- table(Actual = test_data$Species, Predicted = nb_pred) 
+
+# Visualize the confusion matrix
+ggplot(as.data.frame.table(nb_table), aes(x = Actual, y = Predicted, fill = Freq)) + 
+  geom_tile() + 
+  labs(title = "Naive Bayes Confusion Matrix", 
+       x = "Actual", 
+       y = "Predicted")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
